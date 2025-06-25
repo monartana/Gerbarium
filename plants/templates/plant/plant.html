@@ -1,0 +1,108 @@
+{% extends "./base.html" %}
+
+{% from "./comment/components/comment.html" import comment %}
+{% from "./plant/components/plant-grid.html" import plant_grid %}
+
+{% block title %} {{ plant.name }} | Plants {% endblock %}
+
+{% block content %}
+    <div class="flex flex-col lg:flex-row" style="height: calc(100vh - 90px)">
+        <div class="relative w-full lg:w-1/2 group">
+            <img class="w-full object-cover h-full" src="{{ plant.image_url }}" alt="{{ plant.name }}">
+
+            {% if principal %}
+                <button hx-post="/favorites/{{ plant.id }}"
+                        hx-target="#body"
+                        hx-swap="beforeend"
+                        class="absolute group/like top-3 right-3 w-[40px] h-[40px] bg-background flex items-center justify-center">
+                    <i class="fa-solid fa-heart text-2xl group-hover/like:text-accent transition-colors"></i>
+                </button>
+            {% else %}
+                <a href="/auth/login" class="absolute group/like top-3 right-3 w-[40px] h-[40px] bg-background flex items-center justify-center">
+                    <i class="fa-solid fa-heart text-2xl group-hover/like:text-accent transition-colors"></i>
+                </a>
+            {% endif %}
+
+            <div class="absolute bottom-2 left-2 right-2 p-4 bg-background">
+                <h2 class="text-xl">{{ plant.name }}</h2>
+                <p class="text-gray-600"> {{ plant.species }}</p>
+                <p class="text-gray-400 mt-0 max-h-0 overflow-clip
+                          group-hover:mt-3 group-hover:max-h-[500px] transition-all duration-500">
+                    {{ plant.description }}
+                </p>
+            </div>
+        </div>
+
+        <div class="w-full lg:w-1/2 relative flex flex-col gap-2">
+            <div class="flex items-center justify-between p-4">
+                <h2 class="text-xl lg:text-3xl">Comments</h2>
+
+                <div class="relative h-10 w-72 max-w-[200px] min-w-[100px]">
+                    <select id="sort_direction"
+                            name="sort_direction"
+                            hx-get="/comments/fragments/{{ plant.id }}"
+                            hx-target="#plant_comments"
+                            class="peer h-full w-full rounded-[7px] border border-blue-gray-200 border-t-transparent bg-transparent px-3 py-2.5 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 empty:!bg-gray-900 focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50">
+                        <option value="desc">Newer first</option>
+                        <option value="asc">Older first</option>
+                    </select>
+                    <label for="sort_direction"
+                           class="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none text-[11px] font-normal leading-tight text-blue-gray-400 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-none before:border-t before:border-l before:border-blue-gray-200 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-none after:border-t after:border-r after:border-blue-gray-200 after:transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:leading-[3.75] peer-placeholder-shown:text-blue-gray-500 peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent peer-focus:text-[11px] peer-focus:leading-tight peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
+                        Sort
+                    </label>
+                </div>
+            </div>
+
+            <div id="plant_comments"
+                 class="overflow-auto flex flex-col gap-2" id="plant-comments" style="max-height: calc(100vh - 250px)">
+                {% if plants | length == 0 %}
+                  <p class="text-lg flex items-center justify-center">no comments here yet..</p>
+                {% endif %}
+
+                {% for plant_comment in plant.comments %}
+                    {{ comment(plant_comment.user.username, plant_comment.created_at, plant_comment.text) }}
+                {% endfor %}
+            </div>
+
+            {% if principal %}
+                <form
+                        hx-post="/comments/"
+                        hx-ext="json-enc"
+                        hx-swap="beforeend"
+                        hx-target="#body"
+                        class="sticky shadow-who mt-auto bottom-3 mx-4 p-4 bg-secondary flex items-center justify-between">
+                    <input type="hidden" value="{{ plant.id }}" name="plant_id">
+                    {{ input(type="text", name="text", label="Your comment") }}
+                    <div class="w-24">
+                        {% call button(type="submit") -%}
+                            Send
+                        {%- endcall  %}
+                    </div>
+                </form>
+            {% else %}
+                <div class="sticky shadow-who mt-auto bottom-3 mx-4 p-4 bg-secondary flex items-center justify-between">
+                    <p>
+                        Want to leave a comment?
+                    </p>
+
+                    <a href="/auth/login" class="text-center border text-background hover:bg-accent hover:border-accent capitalize py-2 px-8 min-w-[200px] max-w-[24rem]
+                                            bg-secondary hover:text-text border-background transition-all">
+                        Sign In
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="py-8">
+        {% if similar_plants %}
+            {{ plant_grid("Similar Plants", similar_plants) }}
+        {% endif %}
+        
+        {% if personalized_recommendations %}
+            <div class="mt-8">
+                {{ plant_grid("You Might Like", personalized_recommendations) }}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

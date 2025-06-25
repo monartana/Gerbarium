@@ -1,0 +1,10 @@
+<div x-data="{ showAlert: true }"
+     x-show="showAlert"
+     class="fixed bottom-4 inset-x-4 w-auto {{ cls }} flex items-center justify-between px-4 py-2">
+    <span>{{ msg }}</span>
+    <button @click="showAlert = false" type="button" class="text-green-200 hover:text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    </button>
+</div>

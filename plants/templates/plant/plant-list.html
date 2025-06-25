@@ -1,0 +1,19 @@
+{% extends "./base.html" %}
+
+{% from "./plant/components/plant_card.html" import plant_card %}
+
+{% block title %} Home | Plants {% endblock %}
+
+{% block content %}
+    <div class="columns-1 md:columns-2 lg:columns-3 2xl:columns-4 gap-2" id="plant-list">
+        {% for plant in plants %}
+            {{ plant_card(plant, principal) }}
+        {% endfor %}
+
+        {% if total > current %}
+            <button hx-get="/plants/fragments/plant-list?page_number={{ current + 1 }}"
+                    hx-trigger="revealed"
+                    hx-swap="outerHTML"></button>
+        {% endif %}
+    </div>
+{% endblock %}

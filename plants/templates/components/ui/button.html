@@ -1,0 +1,17 @@
+{% macro button(variant="primary", type="button") %}
+    {% if variant == 'primary' %}
+        <button type="{{ type }}"
+                class="border bg-accent border-accent text-background capitalize py-2 px-8 w-full max-w-[24rem]
+                       hover:bg-accent hover:border-accent hover:text-text transition-all">
+            {{ caller() }}
+        </button>
+    {% endif %}
+
+    {% if variant == 'secondary' %}
+        <button type="{{ type }}"
+                class="text-center border text-background hover:bg-accent hover:border-accent capitalize py-2 px-8 w-full max-w-[24rem]
+                       bg-secondary border-background transition-all hover:text-text">
+            {{ caller() }}
+        </button>
+    {% endif %}
+{% endmacro %}

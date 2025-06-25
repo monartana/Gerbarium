@@ -1,0 +1,7 @@
+{% from "./comment/components/comment.html" import comment %}
+
+<div class="overflow-auto flex flex-col gap-2" id="plant-comments" style="max-height: calc(100vh - 250px)">
+    {% for plant_comment in comments %}
+        {{ comment(plant_comment.user.username, plant_comment.created_at, plant_comment.text) }}
+    {% endfor %}
+</div>

@@ -1,0 +1,32 @@
+{% macro plant_row(plant) %}
+    <tr class="even:bg-bg odd:bg-secondary">
+        <td>{{ plant.id }}</td>
+        <td>{{ plant.name }}</td>
+        <td>{{ plant.species }}</td>
+        <td>{{ plant.description }}</td>
+        <td>
+            <img src="{{ plant.image_url }}" alt="" class="max-h-[200px]" />
+        </td>
+        <td>{{ plant.water_needs.value }}</td>
+        <td>{{ plant.light_needs.value }}</td>
+        <td>{{ plant.temperature_preference.value }}</td>
+        <td>{{ plant.humidity_needs.value }}</td>
+        <td>{{ plant.location.value }}</td>
+        <td>
+            <button hx-get="fragments/edit-row/{{ plant.id }}"
+                    hx-target="closest tr"
+                    hx-swap="outerHTML"
+                    class="hover:text-green-600 p-4 transition-colors">
+                <i class="fa-regular fa-pen-to-square"></i>
+            </button>
+        </td>
+        <td>
+            <button hx-delete="{{ plant.id }}"
+                    hx-target="closest tr"
+                    hx-swap="delete"
+                    class="hover:text-red-600 p-4 transition-colors">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        </td>
+    </tr>
+{% endmacro %}

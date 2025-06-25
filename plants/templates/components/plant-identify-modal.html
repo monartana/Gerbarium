@@ -1,0 +1,161 @@
+{% macro plant_identify_modal() %}
+<div x-data="{
+    modalIsOpen: false,
+    preview: null,
+    file: null,
+    hasFile: false,
+    isUploading: false,
+    result: null,
+
+    handleFileSelect(event) {
+        const file = event.target.files[0];
+        if (file) {
+            this.file = file;
+            this.hasFile = true;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.preview = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    },
+
+    async identify() {
+        if (!this.file) return;
+
+        this.isUploading = true;
+        const formData = new FormData();
+        formData.append('file', this.file);
+
+        try {
+            const response = await fetch('/api/plants/identify', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            this.result = data.data;
+        } catch (error) {
+            console.error('Error:', error);
+            this.result = {
+                identified: false,
+                plant_name: 'Error',
+                message: 'An error occurred while identifying the plant.'
+            };
+        } finally {
+            this.isUploading = false;
+        }
+    },
+
+    reset() {
+        this.preview = null;
+        this.file = null;
+        this.hasFile = false;
+        this.isUploading = false;
+        this.result = null;
+    }
+}">
+    <button 
+            x-on:click="modalIsOpen = true" type="button"
+            class="text-center border text-white hover:bg-accent hover:border-accent capitalize py-2 px-8 w-full max-w-[24rem]
+                    bg-secondary border-background transition-all hover:text-text flex gap-4 items-center">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        Identify Plant
+    </button>
+    <div x-cloak x-show="modalIsOpen" x-transition.opacity.duration.200ms x-trap.inert.noscroll="modalIsOpen" x-on:keydown.esc.window="modalIsOpen = false" x-on:click.self="modalIsOpen = false" class="fixed inset-0 z-30 flex items-end justify-center bg-black/20 p-4 pb-8 backdrop-blur-md sm:items-center lg:p-8" role="dialog" aria-modal="true" aria-labelledby="defaultModalTitle">
+        <!-- Modal Dialog -->
+        <div x-show="modalIsOpen" x-transition:enter="transition ease-out duration-200 delay-100 motion-reduce:transition-opacity" x-transition:enter-start="opacity-0 scale-50" x-transition:enter-end="opacity-100 scale-100" class="flex max-w-lg flex-col gap-4 overflow-hidden rounded-radius border border-outline bg-background text-on-surface dark:border-outline-dark dark:bg-surface-dark-alt dark:text-on-surface-dark">
+            <!-- Dialog Header -->
+            <div class="flex items-center justify-between border-b border-outline bg-surface-alt/60 p-4 dark:border-outline-dark dark:bg-surface-dark/20">
+                <h3 id="defaultModalTitle" class="font-semibold tracking-wide text-on-surface-strong dark:text-on-surface-dark-strong">Identify Plant</h3>
+                <button x-on:click="modalIsOpen = false; reset()" aria-label="close modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" stroke="currentColor" fill="none" stroke-width="1.4" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <!-- Dialog Body -->
+            <div class="px-4 py-8"> 
+                <template x-if="!isUploading && !result">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-center w-full">
+                            <label class="relative flex flex-col w-full h-48 border-4 border-dashed hover:bg-gray-50 hover:border-accent cursor-pointer">
+                                <img x-show="preview" :src="preview" class="absolute inset-0 w-full h-full object-cover" />
+                                <template x-if="!preview">
+                                    <div class="flex flex-col items-center">
+                                        <i class="fa-regular fa-image text-4xl text-gray-400"></i>
+                                        <p class="pt-1 text-sm text-gray-400">Select a photo</p>
+                                    </div>
+                                </template>
+                                <input @change="handleFileSelect" type="file" class="opacity-0" accept="image/*" />
+                            </label>
+                        </div>
+                        <button @click="identify" 
+                                :disabled="!hasFile"
+                                :class="{'opacity-50 cursor-not-allowed': !hasFile}"
+                                class="border bg-accent border-accent text-background capitalize py-2 px-8 w-full max-w-[24rem]
+                                    hover:bg-accent hover:border-accent hover:text-text transition-all">
+                            Identify Plant
+                        </button>
+                    </div>
+                </template>
+
+                <template x-if="isUploading">
+                    <div class="flex items-center justify-center space-x-2">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-secondary"></div>
+                        <span>Identifying plant...</span>
+                    </div>
+                </template>
+
+                <template x-if="result">
+                    <div class="space-y-4">
+                        <template x-if="result.identified">
+                            <div>
+                                <h4 class="text-xl font-semibold" x-text="result.plant_name"></h4>
+                                <p class="text-gray-600" x-text="'Confidence: ' + Math.round(result.confidence * 100) + '%'"></p>
+                                <img :src="result.image_url" class="w-full h-48 object-cover" />
+                                <template x-if="!result.found_in_database">
+                                    <div class="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400">
+                                        <p class="text-yellow-700">
+                                            This plant is not yet in our database. We'll add it soon!
+                                        </p>
+                                    </div>
+                                </template>
+                                <template x-if="result.found_in_database">
+                                    <div class="mt-4 p-4 bg-green-50 border-l-4 border-green-400">
+                                        <p class="text-green-700">
+                                            We also think this plant is already in our database.
+                                            <a :href="'/plants/' + result.plant_id" 
+                                                class="inline-block mt-2 text-secondary hover:text-accent font-medium">
+                                                View plant details →
+                                            </a>
+                                            <p class="text-gray-600" x-text="'Match confidence: ' + Math.round(result.match_confidence * 100) + '%'"></p>
+                                        </p>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                        <template x-if="!result.identified">
+                            <div>
+                                <h4 class="text-xl font-semibold text-red-600">No Match Found</h4>
+                                <p x-text="result.message"></p>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </div>
+            <!-- Dialog Footer -->
+            <div class="flex flex-col-reverse justify-between gap-2 border-t border-outline bg-surface-alt/60 p-4 dark:border-outline-dark dark:bg-surface-dark/20 sm:flex-row sm:items-center md:justify-end">
+                <template x-if="result">
+                    <button x-on:click="reset" type="button" class="whitespace-nowrap rounded-radius px-4 py-2 text-center text-sm font-medium tracking-wide text-on-surface transition hover:opacity-75 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:opacity-100 active:outline-offset-0 dark:text-on-surface-dark dark:focus-visible:outline-primary-dark">Try Another</button>
+                </template>
+                <button x-on:click="modalIsOpen = false; reset()" type="button" 
+                        class="text-center border text-background hover:bg-accent hover:border-accent capitalize py-2 px-8 max-w-[24rem]
+                            bg-secondary border-background transition-all hover:text-text">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}

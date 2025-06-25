@@ -1,0 +1,125 @@
+{% from "./components/ui/input.html" import input %}
+{% from "./dashboard/plant/components/plant_row.html" import plant_row %}
+
+{% extends "./base.html" %}
+
+{% block title %} Dashboard | Plants {% endblock %}
+
+{% block content %}
+
+    <style>
+        td {
+            padding: 4px 8px;
+        }
+
+        th {
+            cursor: pointer;
+            transition: color 150ms;
+        }
+
+        th:hover {
+            color: #9ca3af;
+        }
+    </style>
+
+    <nav class="container mx-auto flex items-center">
+        <form action=""
+              class="flex items-center justify-center w-full">
+            {{ input(id='query', name='query', label='Search') }}
+            <button class="border hover:border-accent hover:bg-accent transition-all py-[7px] px-[12px]">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+        </form>
+
+        <button
+                hx-get="fragments/add-row"
+                hx-target="next tbody"
+                hx-swap="afterbegin"
+                class="border hover:border-accent hover:bg-accent transition-all py-[7px] px-[12px]"
+        >
+            <i class="fa-solid fa-plus"></i>
+        </button>
+    </nav>
+
+    <div class="p-4"></div>
+
+    <div class="w-full overflow-x-auto">
+        <table class="w-full">
+            <thead>
+            <tr>
+                <th data-sort="id">Id</th>
+                <th data-sort="name">Name</th>
+                <th data-sort="species">Species</th>
+                <th data-sort="description">Description</th>
+                <th data-sort="image_url">Image</th>
+                <th data-sort="water_needs">Water Needs</th>
+                <th data-sort="light_needs">Light Needs</th>
+                <th data-sort="temperature_preference">Temperature</th>
+                <th data-sort="humidity_needs">Humidity</th>
+                <th data-sort="location">Location</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+
+            <tbody>
+                {% for plant in plants %} {{ plant_row(plant) }} {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <nav class="flex flex-wrap justify-center items-center gap-1 container my-4 mx-auto">
+        {% for i in range(total) %}
+            <a class="pagination_link cursor-pointer border py-1 px-2 {% if i + 1 == current %}
+                bg-accent
+            {% endif %} " data-page="{{ i + 1 }}">{{ i + 1 }}</a>
+        {% endfor %}
+    </nav>
+
+    <script>
+        const paginationLinks = document.querySelectorAll('.pagination_link');
+
+        paginationLinks.forEach(link => link.addEventListener('click', function(event) {
+            event.preventDefault();
+
+            const url = new URL(window.location.href);
+            const newParamName = 'page_number';
+            const newParamValue = link.dataset.page;
+
+            const newParams = {};
+
+            for (const [key, value] of url.searchParams.entries()) {
+                if (key !== newParamName) {
+                    newParams[key] = value;
+                }
+            }
+
+            newParams[newParamName] = newParamValue;
+
+            url.search = new URLSearchParams(newParams).toString();
+
+            window.location.href = url.toString();
+        }));
+
+        const tableHeaders = document.querySelectorAll('thead th');
+
+        tableHeaders.forEach(header => {
+            header.addEventListener('click', function() {
+                const sortKey = this.dataset.sort;
+                let sortOrder = 'asc';
+
+                const currentSortParam = new URLSearchParams(window.location.search);
+                const currentSortBy = currentSortParam.get('sort_by');
+                const currentSortOrder = currentSortParam.get('sort_direction');
+
+                if (currentSortBy === sortKey) {
+                    sortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+                }
+
+                const url = new URL(window.location.href);
+                url.searchParams.set('sort_by', `${sortKey}`);
+                url.searchParams.set('sort_direction', `${sortOrder}`);
+                window.location.href = url.toString();
+            });
+        });
+    </script>
+{% endblock %}

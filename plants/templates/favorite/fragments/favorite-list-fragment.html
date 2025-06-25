@@ -1,0 +1,12 @@
+{% from "./plant/components/plant_card.html" import plant_card %}
+
+{% for plant in plants %}
+    {{ plant_card(plant, principal) }}
+{% endfor %}
+
+{% if total > current %}
+    <button hx-get="/favorites/my/fragments/favorite-list?page_number={{ current + 1 }}"
+            hx-trigger="revealed"
+            hx-swap="outerHTML">
+    </button>
+{% endif %}

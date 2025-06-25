@@ -1,0 +1,109 @@
+{% from "./components/ui/input.html" import input %}
+{% from "./components/ui/select.html" import select %}
+
+<tr>
+    <td>{{ plant.id }}</td>
+    <td>
+        {{ input(id='name', name='name', label='Plant Name', type="text", value=plant.name, required=true, class='plant-input') }}
+    </td>
+
+    <td>
+        {{ input(id='species', name='species', label='Plant Species', type="text", value=plant.species, required=true, class='plant-input') }}
+    </td>
+
+    <td>
+        {{ input(id='description', name='description', label='Plant Description', type="text", value=plant.description, required=true, class='plant-input') }}
+    </td>
+
+    <td>
+        {{ input(id='image_url', name='image_url', label='Plant Image', type="text", value=plant.image_url, required=true, class='plant-input') }}
+    </td>
+
+    <td>
+        {{ select(id='water_needs',
+                 name='water_needs',
+                 label='Water Needs',
+                 options={
+                     'low': 'Low Water Needs',
+                     'moderate': 'Moderate Water Needs',
+                     'high': 'High Water Needs'
+                 },
+                 value=plant.water_needs,
+                 class='plant-input') }}
+    </td>
+
+    <td>
+        {{ select(id='light_needs',
+                 name='light_needs',
+                 label='Light Needs',
+                 options={
+                     'low': 'Low Light Needs',
+                     'moderate': 'Moderate Light Needs',
+                     'high': 'High Light Needs'
+                 },
+                 value=plant.light_needs,
+                 class='plant-input') }}
+    </td>
+
+    <td>
+        {{ select(id='temperature_preference',
+                 name='temperature_preference',
+                 label='Temperature',
+                 options={
+                     'cold': 'Cold (Below 15°C)',
+                     'moderate': 'Moderate (15-25°C)',
+                     'warm': 'Warm (Above 25°C)'
+                 },
+                 value=plant.temperature_preference,
+                 class='plant-input') }}
+    </td>
+
+    <td>
+        {{ select(id='humidity_needs',
+                 name='humidity_needs',
+                 label='Humidity',
+                 options={
+                     'low': 'Low Humidity',
+                     'moderate': 'Moderate Humidity',
+                     'high': 'High Humidity'
+                 },
+                 value=plant.humidity_needs,
+                 class='plant-input') }}
+    </td>
+
+    <td>
+        {{ select(id='location',
+                 name='location',
+                 label='Location',
+                 options={
+                     'indoor': 'Indoor Only',
+                     'outdoor': 'Outdoor Only',
+                     'both': 'Both Indoor & Outdoor'
+                 },
+                 value=plant.location,
+                 class='plant-input') }}
+    </td>
+
+    <td>
+        <button 
+            type="button"
+            hx-put="{{ plant.id }}"
+            hx-target="closest tr"
+            hx-ext="json-enc"
+            hx-swap="outerHTML"
+            hx-include=".plant-input" 
+            class="hover:text-green-600 p-4 transition-colors">
+            <i class="fa-solid fa-check"></i>
+        </button>
+    </td>
+    <td>
+        <button hx-get="fragments/cancel-edit-row/{{ plant.id }}"
+                hx-target="closest tr"
+                hx-swap="outerHTML"
+                type="button"
+                class="hover:text-red-600 p-4 transition-colors"
+        >
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </td>
+</tr>

@@ -1,0 +1,34 @@
+{% extends "./base.html" %}
+
+{% from "./plant/components/plant_card.html" import plant_card %}
+{% from "./plant/components/plant-grid.html" import plant_grid %}
+
+{% block title %} My Favorites | Plants {% endblock %}
+
+{% block content %}
+    <div>
+        <h1 class="text-2xl font-semibold mb-6">My Favorites</h1>
+        
+        {% if plants | length == 0 %}
+            <p class="text-lg flex items-center justify-center">It seems like you don't have any favorites yet...</p>
+        {% else %}
+            <div class="columns-1 md:columns-2 lg:columns-3 2xl:columns-4 gap-2" id="plant-list">
+                {% for plant in plants %}
+                    {{ plant_card(plant, principal) }}
+                {% endfor %}
+
+                {% if total > current %}
+                    <button hx-get="/favorites/my/fragments/favorite-list?page_number={{ current + 1 }}"
+                            hx-trigger="revealed"
+                            hx-swap="outerHTML"></button>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if personalized_recommendations %}
+            <div class="mt-12">
+                {{ plant_grid("You Might Like", personalized_recommendations) }}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

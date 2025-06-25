@@ -1,0 +1,61 @@
+{% from "./components/ui/button.html" import button %}
+{% from "./components/ui/input.html" import input %}
+{% from "./components/ui/user_button.html" import user_button %}
+{% from "./components/plant-identify-modal.html" import plant_identify_modal %}
+
+<!DOCTYPE html>
+<html lang="en" class="dark bg-background text-text">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{% block title %}{% endblock %}</title>
+    <link href="{{url_for('static',path='/css/app.css')}}" rel="stylesheet" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+
+    <style>
+        * {
+            font-family: 'Raleway', sans-serif;
+            border-radius: 0 !important;
+        }
+        [x-cloak] { display: none !important; }
+    </style>
+
+    <script src="https://unpkg.com/htmx.org@1.9.11" integrity="sha384-0gxUXCCR8yv9FM2b+U3FDbsKthCI66oH5IA9fHppQq9DDMHuMauqq1ZHBpJxQ0J0" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/ef74cad3e5.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/json-enc.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+
+<body id="body">
+<header class="flex fixed top-0 right-0 left-0 z-[50] bg-background flex-row items-center justify-between mb-2">
+    <a href="/plants">
+        <div class="w-[80px] h-[80px]">
+            <img src="{{url_for('static',path='/img/plant-logo.jpeg')}}" alt="">
+        </div>
+    </a>
+
+    <div class="flex justify-center items-center gap-4">
+        <div id="plant-identify-modal">
+            {{ plant_identify_modal() }}
+        </div>
+
+        {% if principal %}
+            {{ user_button(principal) }}
+        {% else %}
+            <a href="/auth/login" class="flex items-center gap-2 px-5 py-2.5 rounded-md shadow">
+                <i class="fa-regular fa-user text-2xl"></i>
+            </a>
+        {% endif %}
+    </div>
+</header>
+
+<main class="mt-[88px] px-2">
+    {% block content %}{% endblock %}
+</main>
+
+</body>
+
+</html>

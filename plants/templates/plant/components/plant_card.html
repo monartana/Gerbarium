@@ -1,0 +1,28 @@
+{% macro plant_card(plant, principal) %}
+        <div class="relative group">
+            <a href="/plants/{{ plant.id }}" class="block mb-2">
+                <img class="w-full object-cover" src="{{ plant.image_url }}" alt="{{ plant.name }}">
+            </a>
+
+            {% if principal %}
+                <button hx-post="/favorites/{{ plant.id }}"
+                        hx-target="#body"
+                        hx-swap="beforeend"
+                        class="absolute group/like top-3 right-3 w-[40px] h-[40px] bg-background flex items-center justify-center">
+                    <i class="fa-solid fa-heart text-2xl group-hover/like:text-accent transition-colors"></i>
+                </button>
+            {% else %}
+                <a href="/auth/login" class="absolute group/like top-3 right-3 w-[40px] h-[40px] bg-background flex items-center justify-center">
+                    <i class="fa-solid fa-heart text-2xl group-hover/like:text-accent transition-colors"></i>
+                </a>
+            {% endif %}
+
+            <div class="absolute bottom-2 left-2 right-2 p-4 bg-background">
+                <h2 class="text-xl">{{ plant.name }}</h2>
+                <p class="text-gray-400 max-h-0 overflow-clip
+                      group-hover:max-h-[500px] transition-all duration-500">
+                    {{ plant.species }}
+                </p>
+            </div>
+        </div>
+{% endmacro %}

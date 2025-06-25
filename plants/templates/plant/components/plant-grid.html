@@ -1,0 +1,15 @@
+{% from "./plant/components/plant_card.html" import plant_card %}
+
+{% macro plant_grid(title, plants) %}
+    {% if plants and plants|length > 0 %}
+        <div class="mt-8">
+            <h3 class="text-xl font-semibold mb-4">{{ title }}</h3>
+        </div>
+
+        <div class="columns-1 md:columns-2 lg:columns-3 2xl:columns-4 gap-2">
+            {% for plant in plants %}
+                {{ plant_card(plant, principal) }}
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endmacro %}
